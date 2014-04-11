@@ -212,7 +212,7 @@ PHP_FUSE_API int php_fuse_getattr(const char * path, struct stat * st) {
 	zend_hash_internal_pointer_reset_ex(Z_ARRVAL_P(arg_st), &pos);
 	while (zend_hash_get_current_data_ex(Z_ARRVAL_P(arg_st), (void **)&entry, &pos) == SUCCESS) {
 		convert_to_long_ex(entry);
-		int value = Z_LVAL_PP(entry);
+		long value = Z_LVAL_PP(entry);
 
 		switch (zend_hash_get_current_key_ex(Z_ARRVAL_P(arg_st), &tmp_s_key, &tmp_s_key_len, &tmp_n_key, 0, &pos)) {	// no duplication
 		case HASH_KEY_IS_STRING:
@@ -268,7 +268,7 @@ PHP_FUSE_API int php_fuse_getattr(const char * path, struct stat * st) {
 				st->st_rdev = (dev_t)value;
 				break;
 			case 7:
-				st->st_size = (off_t)value;
+				st->st_size = (size_t)value;
 				break;
 			case 8:
 				st->st_atime = (time_t)value;
@@ -1571,7 +1571,7 @@ static struct fuse_operations php_fuse_operations = {
 	.setxattr		= php_fuse_setxattr,
 	.getxattr		= php_fuse_getxattr,
 	.listxattr		= php_fuse_listxattr,
-	.removexattr		= php_fuse_removexattr,
+	.removexattr	= php_fuse_removexattr,
 };
 
 static zend_class_entry *php_fuse_ce;
@@ -2393,7 +2393,7 @@ zend_function_entry php_fuse_methods[] = {
     PHP_ME(Fuse,	truncate,		arginfo_fuse_truncate,		ZEND_ACC_PUBLIC)
     PHP_ME(Fuse,	utime,			arginfo_fuse_utime,			ZEND_ACC_PUBLIC)
     PHP_ME(Fuse,	open,			arginfo_fuse_open,			ZEND_ACC_PUBLIC)
-    PHP_ME(Fuse,	create,			arginfo_fuse_create,			ZEND_ACC_PUBLIC)
+    PHP_ME(Fuse,	create,			arginfo_fuse_create,		ZEND_ACC_PUBLIC)
     PHP_ME(Fuse,	read,			arginfo_fuse_read,			ZEND_ACC_PUBLIC)
     PHP_ME(Fuse,	write,			arginfo_fuse_write,			ZEND_ACC_PUBLIC)
     PHP_ME(Fuse,	statfs,			arginfo_fuse_statfs,		ZEND_ACC_PUBLIC)
@@ -2488,15 +2488,16 @@ PHP_MINIT_FUNCTION(fuse) {
 	REGISTER_LONG_CONSTANT("FUSE_EDOM", EDOM, CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("FUSE_ERANGE", ERANGE, CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("FUSE_ENOSYS", ENOSYS, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("FUSE_EINPROGRESS", EINPROGRESS, CONST_CS | CONST_PERSISTENT);
 
 	REGISTER_LONG_CONSTANT("FUSE_DT_UKNOWN", DT_UNKNOWN, CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("FUSE_DT_REG", DT_REG, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("FUSE_DT_LNK", DT_LNK, CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("FUSE_DT_DIR", DT_DIR, CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("FUSE_DT_FIFO", DT_FIFO, CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("FUSE_DT_SOCK", DT_SOCK, CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("FUSE_DT_CHR", DT_CHR, CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("FUSE_DT_BLK", DT_BLK, CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("FUSE_DT_LNK", DT_LNK, CONST_CS | CONST_PERSISTENT);
 
 	REGISTER_LONG_CONSTANT("FUSE_O_RDONLY", O_RDONLY, CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("FUSE_O_WRONLY", O_WRONLY, CONST_CS | CONST_PERSISTENT);
